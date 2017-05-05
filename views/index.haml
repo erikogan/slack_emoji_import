@@ -1,0 +1,15 @@
+%html
+  %head
+    %title Emoticon Editor
+  %body
+    %form{method: 'POST'}
+      %table{border: 1}
+        - @files.each do |f|
+          %tr
+            %td
+              %input{type: 'checkbox', name: f[:base]}
+            %td
+              %img{src: f[:url]}
+            %td=f[:name]
+      %input{type: 'submit', name: 'submit', value: 'Do It!'}
+
