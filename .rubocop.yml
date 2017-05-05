@@ -1,0 +1,10 @@
+AllCops:
+  Exclude:
+    - "*/**/*.rb"
+  DisplayCopNames: true
+  DisplayStyleGuide: true
+  TargetRubyVersion: 2.4
+
+Metrics/LineLength:
+  Max: 120 # default: 80
+
