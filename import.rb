@@ -1,61 +1,64 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'selenium-webdriver'
 require 'byebug'
 
-# rubocop:disable Metrics/LineLength
-# JQuery to grab all the images from the page:
-# el = $('td[headers="custom_emoji_image"]').filter(() => { return $(this).siblings('td[headers="custom_emoji_type"]:contains("Image")').length > 0})
-# save = []
-# $.map(el, (s) => {save.push($(s).data('original'))} ))
-# JSON.stringify(save)
-# rubocop:enable Metrics/LineLength
+$:.unshift File.join(File.dirname(__FILE__), 'lib')
+require 'util'
 
-url = 'https://<YOUR_GROUP>.slack.com/customize/emoji'
-EMAIL = 'YOUR EMAIL'
-PASSWORD = 'YOUR PASSWORD'
+class Importer
+  include Util
 
-driver = Selenium::WebDriver.for :chrome
+  def run
+    source_data = @source.cached_data_and_images
+    dest_data = @dest.cached_data_and_images
 
-def file_to_name(file)
-  file.gsub(%r{(?:^.*/)?(.*)\.\w+$}, '\1')
-end
+    # byebug ; 1
 
-begin
-  driver.navigate.to url
+    try = 0
+    source_data.each do |name, data|
+      next if data[:alias]
+      next if @removed.include?(name)
+      if dest_data.key?(name)
+        $stderr.puts "WARNING: #{name} differs, but not replacing" if dest_data[name][:md5] != data[:md5]
+        next
+      end
+      puts name
+      # byebug ; 1
+      begin
+        # @dest.add_emoji(name, data[:file])
+      rescue Selenium::WebDriver::Error::UnknownError => e
+        try += 1
+        if try < 10
+          sleep 1
+          puts 'RETRY!'
+          retry
+        else
+          raise e
+        end
+      end
 
-  email = driver.find_element(:name, 'email')
-  password = driver.find_element(:name, 'password')
-
-  email.send_keys(EMAIL)
-  password.send_keys(PASSWORD)
-  email.submit
-
-  wait = Selenium::WebDriver::Wait.new(timeout: 10) # seconds
-  table = nil
-  wait.until { table = driver.find_element(id: 'custom_emoji') }
-
-  names = table.find_elements(:css, '.emoji_row > td:nth-of-type(2)')
-  names.map! { |n| n.text.gsub(/:([^:]+):/, '\1') }
-
-  files = Dir['images/*.{jpg,png,gif}'].reject { |f| names.include?(file_to_name(f)) }.sort
-
-  files.each do |f|
-    name_field = nil
-    wait.until { name_field = driver.find_element(:id, 'emojiname') }
-
-    name_field = driver.find_element(:id, 'emojiname')
-    file = driver.find_element(:id, 'emojiimg')
-    # No useful way to find it directly?
-    submit = driver.find_element(:css, '#addemoji .btn_primary')
-    file.send_keys(File.expand_path(f))
-    name_field.clear
-    name = file_to_name(f)
-    name_field.send_keys(name)
-    puts name
-    submit.click
+      try = 0
+      # sleep 1
+    end
+    sleep 2
   end
-ensure
-  driver.quit
+
+  def initialize(dest, source = nil)
+    @dest = configs[dest.to_sym] || raise("no such workspace: #{dest}")
+    @source = source ? configs[source.to_sym] || raise("no such workspace #{source}") : configs[:_source]
+    @removed = YAML.safe_load(File.read('data/removed.yml'))
+    if File.exist?("data/removed.#{dest}.yml")
+      @removed += YAML.safe_load(File.read("data/removed.#{dest}.yml"))
+    end
+  end
 end
+
+Importer.new(*ARGV).run
+
+
+# TODO: Incorporate
+# ensure
+#   driver.quit
+# end
+

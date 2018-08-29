@@ -1,61 +1,100 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    ast (2.3.0)
-    byebug (9.0.6)
-    childprocess (0.6.2)
+    activesupport (5.2.1)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 0.7, < 2)
+      minitest (~> 5.1)
+      tzinfo (~> 1.1)
+    archive-zip (0.11.0)
+      io-like (~> 0.3.0)
+    ast (2.4.0)
+    byebug (10.0.2)
+    childprocess (0.9.0)
       ffi (~> 1.0, >= 1.0.11)
-    daemons (1.2.4)
-    eventmachine (1.2.3)
-    ffi (1.9.18)
-    haml (4.0.7)
+    chromedriver-helper (1.2.0)
+      archive-zip (~> 0.10)
+      nokogiri (~> 1.8)
+    concurrent-ruby (1.0.5)
+    daemons (1.2.6)
+    ethon (0.11.0)
+      ffi (>= 1.3.0)
+    eventmachine (1.2.7)
+    faraday (0.15.2)
+      multipart-post (>= 1.2, < 3)
+    faraday_middleware (0.12.2)
+      faraday (>= 0.7.4, < 1.0)
+    ffi (1.9.25)
+    haml (5.0.4)
+      temple (>= 0.8.0)
       tilt
-    parser (2.4.0.0)
-      ast (~> 2.2)
-    powerpack (0.1.1)
-    rack (1.6.5)
-    rack-protection (1.5.3)
+    i18n (1.1.0)
+      concurrent-ruby (~> 1.0)
+    io-like (0.3.0)
+    jaro_winkler (1.5.1)
+    mini_portile2 (2.3.0)
+    minitest (5.11.3)
+    multipart-post (2.0.0)
+    mustermann (1.0.3)
+    nokogiri (1.8.4)
+      mini_portile2 (~> 2.3.0)
+    parallel (1.12.1)
+    parser (2.5.1.2)
+      ast (~> 2.4.0)
+    powerpack (0.1.2)
+    rack (2.0.5)
+    rack-protection (2.0.3)
       rack
-    rainbow (2.2.2)
-      rake
-    rake (12.0.0)
-    rubocop (0.48.1)
-      parser (>= 2.3.3.1, < 3.0)
+    rainbow (3.0.0)
+    rubocop (0.58.2)
+      jaro_winkler (~> 1.5.1)
+      parallel (~> 1.10)
+      parser (>= 2.5, != 2.5.1.1)
       powerpack (~> 0.1)
-      rainbow (>= 1.99.1, < 3.0)
+      rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
-    ruby-progressbar (1.8.1)
+    ruby-progressbar (1.10.0)
     rubyzip (1.2.1)
-    selenium-webdriver (3.2.2)
+    selenium-webdriver (3.14.0)
       childprocess (~> 0.5)
-      rubyzip (~> 1.0)
-      websocket (~> 1.0)
-    sinatra (1.4.8)
-      rack (~> 1.5)
-      rack-protection (~> 1.4)
-      tilt (>= 1.3, < 3)
-    thin (1.7.0)
+      rubyzip (~> 1.2)
+    sinatra (2.0.3)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.3)
+      tilt (~> 2.0)
+    temple (0.8.0)
+    thin (1.7.2)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
       rack (>= 1, < 3)
-    tilt (2.0.6)
-    unicode-display_width (1.2.1)
-    websocket (1.2.4)
+    thread_safe (0.3.6)
+    tilt (2.0.8)
+    typhoeus (1.3.0)
+      ethon (>= 0.9.0)
+    tzinfo (1.2.5)
+      thread_safe (~> 0.1)
+    unicode-display_width (1.4.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  activesupport
   byebug
+  chromedriver-helper
+  faraday
+  faraday_middleware
   haml
   rubocop
   selenium-webdriver
   sinatra
   thin
+  typhoeus
 
 RUBY VERSION
-   ruby 2.4.0p0
+   ruby 2.5.1p57
 
 BUNDLED WITH
-   1.14.6
+   1.16.4

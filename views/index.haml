@@ -4,12 +4,25 @@
   %body
     %form{method: 'POST'}
       %table{border: 1}
-        - @files.each do |f|
+        %tr
+          %th ON
+          %th All
+          %th Home
+          %th img/alias
+          %th name
+        - @files.each do |name, f|
           %tr
             %td
-              %input{type: 'checkbox', name: f[:base]}
+              %input{type: 'radio', name: name, value: 'enabled', checked: !(f[:disabled] || f[:home])}
             %td
-              %img{src: f[:url]}
+              %input{type: 'radio', name: name, value: 'disabled', checked: f[:disabled]}
+            %td
+              %input{type: 'radio', name: name, value: 'home', checked: f[:home]}
+            %td
+              - if f[:url]
+                %img{src: f[:url]}
+              - else
+                = "aliased to #{f[:alias]}"
             %td=f[:name]
       %input{type: 'submit', name: 'submit', value: 'Do It!'}
 

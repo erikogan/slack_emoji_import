@@ -1,0 +1,22 @@
+%html
+  %head
+    %title Emoticon Editor
+  %body
+    %form{method: 'POST'}
+      %table{border: 1}
+        %tr
+          %th ON
+          %th src
+          %th dest
+          %th name
+        - @files.each do |name, f|
+          %tr
+            %td
+              %input{type: 'checkbox', name: name, value: 'enabled', checked: f[2]}
+            %td
+              %img{src: f[0]}
+            %td
+              %img{src: f[1]}
+            %td=name
+      %input{type: 'submit', name: 'submit', value: 'Do It!'}
+
