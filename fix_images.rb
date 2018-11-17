@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'byebug'
 
-$:.unshift File.join(File.dirname(__FILE__), 'lib')
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'util'
 
 class Fixer

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'json'
 require 'yaml'
@@ -6,7 +7,7 @@ require 'digest'
 
 require 'byebug'
 
-$:.unshift File.join(File.dirname(__FILE__), 'lib')
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'util'
 
 class Fixer
@@ -15,7 +16,7 @@ class Fixer
   def run
     source_data = @source.cached_data_and_images
     dest_data = @dest.cached_data_and_images
-    byebug ; 1
+    byebug; 1
     diffs = []
 
     dest_data.each do |name, data|
@@ -23,6 +24,7 @@ class Fixer
 
       source = source_data[name]
       next unless source
+
       source = source_data[source[:alias]] while source.key?(:alias)
 
       if data[:md5] == source[:md5]

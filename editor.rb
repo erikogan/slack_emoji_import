@@ -23,13 +23,13 @@ get '/' do
     name = name.to_s
     disabled = removed.include?(name)
     disabled_home = home.include?(name)
-    next if url =~/^alias/ || slackers.key?(name) || disabled || disabled_home
+    next if url =~ /^alias/ || slackers.key?(name) || disabled || disabled_home
 
-    base = url =~ /alias:(.*)/ ? {alias: $1} : {url: url}
+    base = url =~ /alias:(.*)/ ? { alias: Regexp.last_match(1) } : { url: url }
     hash[name] = base.merge(
       name: name,
       disabled: disabled,
-      home: disabled_home,
+      home: disabled_home
     )
   end
 
@@ -41,12 +41,13 @@ end
 post '/' do
   params.delete('submit')
 
-  results = params.group_by {|k,v| v}
+  results = params.group_by { |_k, v| v }
 
-  [['removed', 'disabled'], ['removed.home', 'home']].each do |(file, value)|
+  [%w[removed disabled], %w[removed.home home]].each do |(file, value)|
     next unless results[value]
+
     old_values = YAML.safe_load(File.read("data/#{file}.yml"))
-    new_values = results[value].map {|(k, v)| k}
+    new_values = results[value].map { |(k, _v)| k }
 
     File.write("data/#{file}.yml", (old_values | new_values).sort.to_yaml)
   end
@@ -59,7 +60,11 @@ get '/diff' do
   emoji = JSON.parse(File.read('data/raw/change.json'))['emoji']
   home = JSON.parse(File.read('data/raw/home.json'))['emoji']
 
-  fix = Hash[YAML.safe_load(File.read('data/fix.home.yml')).map {|x| [x, true]}] rescue {}
+  fix = begin
+          Hash[YAML.safe_load(File.read('data/fix.home.yml')).map { |x| [x, true] }]
+        rescue StandardError
+          {}
+        end
 
   @files = diff.each_with_object({}) do |name, hash|
     hash[name] = [emoji[name], home[name], fix[name]]

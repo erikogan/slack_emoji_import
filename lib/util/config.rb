@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'active_support/core_ext/hash/keys' # symbolize_keys
 
@@ -16,9 +18,9 @@ module Util
     include Browser
 
     API_BASE_URL = 'https://slack.com/api/emoji.list'
-    attr_reader *%i{name token url username password source manual_login}
+    attr_reader :name, :token, :url, :username, :password, :source, :manual_login
 
-    def initialize(name:, token:, url: nil, username: nil, password: nil, source:false, manual_login:false)
+    def initialize(name:, token:, url: nil, username: nil, password: nil, source: false, manual_login: false)
       @name = name
       @token = token
       @url = url
@@ -38,17 +40,18 @@ module Util
 
     def password
       return @password if @password
-      @password = ["_#{name.upcase}", "_#{url.upcase}", ''].map {|x| ENV["SLACK_PASSWORD#{x}"]}.compact.first || abort("No password found for #{url}")
+
+      @password = ["_#{name.upcase}", "_#{url.upcase}", ''].map { |x| ENV["SLACK_PASSWORD#{x}"] }.compact.first || abort("No password found for #{url}")
     end
 
     def cached_data_and_images
       data = cached_data['emoji']
       responses = []
-      connection = Util::image_connection
+      connection = Util.image_connection
 
       result = {}
 
-      Util::parallel_image_cache(data) do |info|
+      Util.parallel_image_cache(data) do |info|
         result[info[:name]] = info
       end
 
@@ -56,13 +59,13 @@ module Util
     end
 
     def cached_data
-      Util::ensure_directories
+      Util.ensure_directories
 
       cache = File.join('data', 'raw', "#{name}.json")
       stat = begin
         File.stat(cache)
-      rescue Errno::ENOENT
-        nil
+             rescue Errno::ENOENT
+               nil
       end
 
       if !stat || stat.mtime < Time.now - 24 * 60 * 60
@@ -75,7 +78,7 @@ module Util
 
     def live_data
       resp = self.class.api_connection.get do |req|
-        req.params['token']  = token
+        req.params['token'] = token
       end
 
       # TODO: raise on failure

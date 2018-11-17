@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'selenium-webdriver'
 
 module Util
@@ -25,7 +27,7 @@ module Util
       end
 
       def wait
-        @wait ||=  Selenium::WebDriver::Wait.new(timeout: 10) # seconds
+        @wait ||= Selenium::WebDriver::Wait.new(timeout: 10) # seconds
       end
 
       def remove_emoji(name)
@@ -37,13 +39,13 @@ module Util
         long_wait = Selenium::WebDriver::Wait.new(timeout: 60) # seconds
 
         # wait.until { input = driver.find_element(xpath: "//input[@aria-label = 'Search']") }
-        long_wait.until { input = driver.find_element(xpath: "//input") }
+        long_wait.until { input = driver.find_element(xpath: '//input') }
         input.clear
         input.send_keys(name)
 
         # TODO: Figure out what to wait for for the AJAX to complete
         # wait.until { driver.execute_script('return jQuery.active == 0')}
-        sleep 1;
+        sleep 1
 
         button = nil
         wait.until { button = driver.find_element(xpath: "//button[@data-emoji-name = '#{name}']") }
@@ -52,10 +54,10 @@ module Util
 
         # <button class="c-button c-button--danger c-button--medium c-dialog__go null--danger null--medium" type="button" data-qa="dialog_go">Delete Emoji</button>
 
-        wait.until { button = driver.find_element(xpath: "//button[@data-qa = 'dialog_go']")}
+        wait.until { button = driver.find_element(xpath: "//button[@data-qa = 'dialog_go']") }
         button.click
 
-        wait.until { driver.find_element(css: '.emoji-bg-contain')}
+        wait.until { driver.find_element(css: '.emoji-bg-contain') }
 
         # Wait until it disappears, since the animation seems to screw things up otherwise
         # wait.until { driver.find_element(css: '.emoji-bg-contain').size == 0 }
@@ -80,7 +82,7 @@ module Util
 
         button.click
 
-        wait.until { driver.find_element(css: '.emoji-bg-contain')}
+        wait.until { driver.find_element(css: '.emoji-bg-contain') }
 
         # Wait until it disappears, since the animation seems to screw things up otherwise
         # wait.until { driver.find_element(css: '.emoji-bg-contain').size == 0 }

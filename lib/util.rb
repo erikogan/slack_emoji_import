@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'yaml'
 require 'fileutils'
 require 'digest'
@@ -22,8 +24,8 @@ module Util
 
   def configs
     @configs ||= begin
-      Hash[credentials.map {|name, data| [name.to_sym, Config.from_credentials(name.to_sym, data)]}].tap do |h|
-        h[:_source] = h.values.find {|c| c.source }
+      Hash[credentials.map { |name, data| [name.to_sym, Config.from_credentials(name.to_sym, data)] }].tap do |h|
+        h[:_source] = h.values.find(&:source)
       end
     end
   end
@@ -34,7 +36,7 @@ module Util
     image_connection.in_parallel do
       name_to_url.each do |name, url|
         if url =~ /^alias:(.*)/
-          yield({name: name, alias: $1})
+          yield({ name: name, alias: Regexp.last_match(1) })
           next
         end
 
@@ -43,8 +45,8 @@ module Util
 
         md5_file = cache.gsub(/\.\w+$/, '.md5')
 
-        if [cache, md5_file].all? {|f| File.exist?(f)}
-          yield({name: name, file: cache, md5: File.read(md5_file)})
+        if [cache, md5_file].all? { |f| File.exist?(f) }
+          yield({ name: name, file: cache, md5: File.read(md5_file) })
         else
           responses << [name, cache, md5_file, image_connection.get(url)]
         end
@@ -57,7 +59,7 @@ module Util
       File.write(file, response.body)
       md5 = Digest::MD5.hexdigest(response.body)
       File.write(md5_file, md5)
-      yield({name: name, file: file, md5: md5})
+      yield({ name: name, file: file, md5: md5 })
     end
   end
 
@@ -68,7 +70,6 @@ module Util
     end
   end
 
-
   def ensure_directories
     Dir.mkdir('data') unless File.directory?('data')
     Dir.mkdir('data/raw') unless File.directory?('data/raw')
@@ -77,7 +78,7 @@ module Util
   def credentials
     @credentials ||= begin
       file = File.join(__dir__, '..', 'config', 'credentials.yml')
-       YAML.safe_load(File.read(file))
+      YAML.safe_load(File.read(file))
     end
   end
 end

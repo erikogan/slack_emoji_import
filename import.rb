@@ -3,7 +3,7 @@
 
 require 'byebug'
 
-$:.unshift File.join(File.dirname(__FILE__), 'lib')
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'util'
 
 class Importer
@@ -19,8 +19,9 @@ class Importer
     source_data.each do |name, data|
       next if data[:alias]
       next if @removed.include?(name)
+
       if dest_data.key?(name)
-        $stderr.puts "WARNING: #{name} differs, but not replacing" if dest_data[name][:md5] != data[:md5]
+        warn "WARNING: #{name} differs, but not replacing" if dest_data[name][:md5] != data[:md5]
         next
       end
       puts name
@@ -48,17 +49,13 @@ class Importer
     @dest = configs[dest.to_sym] || raise("no such workspace: #{dest}")
     @source = source ? configs[source.to_sym] || raise("no such workspace #{source}") : configs[:_source]
     @removed = YAML.safe_load(File.read('data/removed.yml'))
-    if File.exist?("data/removed.#{dest}.yml")
-      @removed += YAML.safe_load(File.read("data/removed.#{dest}.yml"))
-    end
+    @removed += YAML.safe_load(File.read("data/removed.#{dest}.yml")) if File.exist?("data/removed.#{dest}.yml")
   end
 end
 
 Importer.new(*ARGV).run
 
-
 # TODO: Incorporate
 # ensure
 #   driver.quit
 # end
-

@@ -8,13 +8,13 @@ gem 'haml'
 gem 'sinatra'
 gem 'thin'
 
-gem 'selenium-webdriver'
 gem 'chromedriver-helper'
+gem 'selenium-webdriver'
 
+gem 'activesupport'
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'typhoeus'
-gem 'activesupport'
 
 group :test, :development do
   gem 'byebug'

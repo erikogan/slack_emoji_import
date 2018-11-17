@@ -1,10 +1,11 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'json'
 require 'yaml'
 require 'byebug'
 
-$:.unshift File.join(File.dirname(__FILE__), 'lib')
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'util'
 
 class Fixer
@@ -18,6 +19,7 @@ class Fixer
       next unless link =~ /alias:(.*)/
       next unless dest_data.key?(name)
       next if dest_data[name] == link
+
       puts "#{name} : #{dest_data[name]} : #{link}"
     end
   end
