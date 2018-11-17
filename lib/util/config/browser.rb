@@ -4,9 +4,10 @@ require 'selenium-webdriver'
 
 module Util
   class Config
+    # Browser-specific methods abstracted to their own module
     module Browser
       def log_in
-        @driver ||= begin
+        @driver ||= begin # rubocop:disable Naming/MemoizedInstanceVariableName @driver is a better name
           driver = Selenium::WebDriver.for :chrome
           driver.navigate.to "https://#{url}.slack.com/customize/emoji"
 
@@ -30,6 +31,7 @@ module Util
         @wait ||= Selenium::WebDriver::Wait.new(timeout: 10) # seconds
       end
 
+      # rubocop:disable Metrics/AbcSize # These methods are essentially browser step scripts
       def remove_emoji(name)
         driver = log_in
 
@@ -52,7 +54,9 @@ module Util
 
         button.click
 
-        # <button class="c-button c-button--danger c-button--medium c-dialog__go null--danger null--medium" type="button" data-qa="dialog_go">Delete Emoji</button>
+        # <button
+        #     class="c-button c-button--danger c-button--medium c-dialog__go null--danger null--medium"
+        #     type="button" data-qa="dialog_go">Delete Emoji</button>
 
         wait.until { button = driver.find_element(xpath: "//button[@data-qa = 'dialog_go']") }
         button.click
@@ -87,6 +91,7 @@ module Util
         # Wait until it disappears, since the animation seems to screw things up otherwise
         # wait.until { driver.find_element(css: '.emoji-bg-contain').size == 0 }
       end
+      # rubocop:enable Metrics/AbcSize
     end
   end
 end
