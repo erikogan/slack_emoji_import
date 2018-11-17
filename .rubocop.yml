@@ -6,3 +6,7 @@ AllCops:
 Metrics/LineLength:
   Max: 120 # default: 80
 
+# Scripts only have one class, do not need docs
+Style/Documentation:
+  Exclude:
+    - "*.rb"
