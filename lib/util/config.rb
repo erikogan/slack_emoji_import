@@ -14,11 +14,12 @@ require 'util/config/browser'
 require 'byebug'
 
 module Util
+  # Class to manage Slack API configurations and endpoint data caches
   class Config
     include Browser
 
     API_BASE_URL = 'https://slack.com/api/emoji.list'
-    attr_reader :name, :token, :url, :username, :password, :source, :manual_login
+    attr_reader :name, :token, :username, :source, :manual_login
 
     def initialize(name:, token:, url: nil, username: nil, password: nil, source: false, manual_login: false)
       @name = name
@@ -41,17 +42,17 @@ module Util
     def password
       return @password if @password
 
-      @password = ["_#{name.upcase}", "_#{url.upcase}", ''].map { |x| ENV["SLACK_PASSWORD#{x}"] }.compact.first || abort("No password found for #{url}")
+      @password = [
+        "_#{name.upcase}",
+        "_#{url.upcase}",
+        ''
+      ].map { |x| ENV["SLACK_PASSWORD#{x}"] }.compact.first || abort("No password found for #{url}")
     end
 
     def cached_data_and_images
-      data = cached_data['emoji']
-      responses = []
-      connection = Util.image_connection
-
       result = {}
 
-      Util.parallel_image_cache(data) do |info|
+      Util.parallel_image_cache(cached_data['emoji']) do |info|
         result[info[:name]] = info
       end
 
@@ -61,18 +62,13 @@ module Util
     def cached_data
       Util.ensure_directories
 
-      cache = File.join('data', 'raw', "#{name}.json")
-      stat = begin
-        File.stat(cache)
-             rescue Errno::ENOENT
-               nil
-      end
+      fresh = fresh_cache_file
 
-      if !stat || stat.mtime < Time.now - 24 * 60 * 60
+      if fresh
+        JSON.parse(File.read(fresh))
+      else
         puts "Fetching updated data for #{name}"
         live_data
-      else
-        JSON.parse(File.read(cache))
       end
     end
 
@@ -82,14 +78,30 @@ module Util
       end
 
       # TODO: raise on failure
-      File.write("data/raw/#{name}.json", resp.body.to_json)
+      File.write(cache_file, resp.body.to_json)
       resp.body
     end
 
-    @@api_connection = nil
+    def fresh_cache_file
+      stat = begin
+               File.stat(cache_file)
+             rescue Errno::ENOENT
+               nil
+             end
+      return nil unless stat
+      return nil if stat.mtime < Time.now - 24 * 60 * 60
+
+      cache_file
+    end
+
+    def cache_file
+      File.join('data', 'raw', "#{name}.json")
+    end
+
+    @api_connection = nil
 
     def self.api_connection
-      @@api_connection ||= Faraday.new(url: API_BASE_URL, parallel_manager: HYDRA) do |builder|
+      @api_connection ||= Faraday.new(url: API_BASE_URL, parallel_manager: HYDRA) do |builder|
         builder.request  :url_encoded
         builder.response :json, content_type: /\bjson$/
         builder.adapter  :typhoeus
