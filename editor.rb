@@ -19,11 +19,13 @@ get '/' do
   removed = YAML.safe_load(File.read('data/removed.yml'))
   home = YAML.safe_load(File.read('data/removed.home.yml'))
 
-  @files = emoji.each_with_object({}) do |(name, url), hash|
+  @files = emoji.sort_by {|k,_v| k}.each_with_object({}) do |(name, url), hash|
     name = name.to_s
+
     disabled = removed.include?(name)
     disabled_home = home.include?(name)
-    next if url =~ /^alias/ || slackers.key?(name) || disabled || disabled_home
+    # Short cut when just trying to pare down disables
+    # next if url =~ /^alias/ || slackers.key?(name) || disabled || disabled_home
 
     base = url =~ /alias:(.*)/ ? { alias: Regexp.last_match(1) } : { url: url }
     hash[name] = base.merge(
