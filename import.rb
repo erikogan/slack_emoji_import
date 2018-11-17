@@ -27,7 +27,7 @@ class Importer
       puts name
       # byebug ; 1
       begin
-        # @dest.add_emoji(name, data[:file])
+        @dest.add_emoji(name, data[:file])
       rescue Selenium::WebDriver::Error::UnknownError => e
         try += 1
         if try < 10
