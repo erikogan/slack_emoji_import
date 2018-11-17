@@ -11,10 +11,6 @@ class Fixer
 
   def run
     source_data = @source.cached_data_and_images
-    # No need to cache images we are likely going to obliterate
-    dest_data = @dest.cached_data['emoji']
-
-    # byebug ; 1
 
     @diff.each do |name|
       puts "REMOVE: #{name}"
