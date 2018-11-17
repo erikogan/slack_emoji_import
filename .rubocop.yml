@@ -10,3 +10,7 @@ Metrics/LineLength:
 Style/Documentation:
   Exclude:
     - "*.rb"
+
+Metrics/ParameterLists:
+  Max: 3
+  CountKeywordArgs: false
