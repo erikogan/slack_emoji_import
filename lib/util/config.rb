@@ -72,7 +72,7 @@ module Util
         puts "Fetching updated data for #{name}"
         live_data
       else
-        JSON.load(File.read(cache))
+        JSON.parse(File.read(cache))
       end
     end
 
