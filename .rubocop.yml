@@ -14,3 +14,7 @@ Style/Documentation:
 Metrics/ParameterLists:
   Max: 3
   CountKeywordArgs: false
+
+# The default (10) is just to stringent for my taste
+Metrics/MethodLength:
+  Max: 15

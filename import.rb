@@ -10,44 +10,51 @@ class Importer
   include Util
 
   def run
-    source_data = @source.cached_data_and_images
-    dest_data = @dest.cached_data_and_images
-
-    # byebug ; 1
-
-    try = 0
-    source_data.each do |name, data|
+    @source_data.each do |name, data|
       next if data[:alias]
       next if @removed.include?(name)
 
-      if dest_data.key?(name)
+      if @dest_data.key?(name)
         warn "WARNING: #{name} differs, but not replacing" if dest_data[name][:md5] != data[:md5]
         next
       end
       puts name
-      # byebug ; 1
-      begin
-        @dest.add_emoji(name, data[:file])
-      rescue Selenium::WebDriver::Error::UnknownError => e
-        try += 1
-        if try < 10
-          sleep 1
-          puts 'RETRY!'
-          retry
-        else
-          raise e
-        end
-      end
-
-      try = 0
-      # sleep 1
+      add_with_retries(name, data)
     end
     sleep 2
   end
 
+  def add_with_retries(name, data)
+    try = 0
+    begin
+      @dest.add_emoji(name, data[:file])
+    rescue Selenium::WebDriver::Error::UnknownError => e
+      try += 1
+      raise e if try > 10
+
+      sleep 1
+      puts 'RETRY!'
+      retry
+    end
+  end
+
   def initialize(dest, source = nil)
+    setup_dest(dest)
+    setup_source(source)
+    setup_removed(dest)
+  end
+
+  def setup_dest(dest)
     @dest = configs[dest.to_sym] || raise("no such workspace: #{dest}")
+    @dest_data = @dest.cached_data_and_images
+  end
+
+  def setup_source(source)
     @source = source ? configs[source.to_sym] || raise("no such workspace #{source}") : configs[:_source]
+    @source_data = @source.cached_data_and_images
+  end
+
+  def setup_removed(dest)
     @removed = YAML.safe_load(File.read('data/removed.yml'))
     @removed += YAML.safe_load(File.read("data/removed.#{dest}.yml")) if File.exist?("data/removed.#{dest}.yml")
   end
