@@ -3,11 +3,12 @@
     %title Emoticon Editor
   %body
     %form{method: 'POST'}
+      %input{type: 'hidden', name: 'dest_name', value: @dest_name}
       %table{border: 1}
         %tr
           %th ON
-          %th All
-          %th Home
+          %th Global
+          %th=@dest_name
           %th img/alias
           %th name
         - @files.each do |name, f|
@@ -17,7 +18,7 @@
             %td
               %input{type: 'radio', name: name, value: 'disabled', checked: f[:disabled]}
             %td
-              %input{type: 'radio', name: name, value: 'home', checked: f[:home]}
+              %input{type: 'radio', name: name, value: @dest_name, checked: f[:home]}
             %td
               - if f[:url]
                 %img{src: f[:url]}

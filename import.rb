@@ -12,7 +12,7 @@ class Importer
   def run
     @source_data.each do |name, data|
       next if data[:alias]
-      next if @removed.include?(name)
+      next if @disabled.include?(name)
 
       if @dest_data.key?(name)
         warn "WARNING: #{name} differs, but not replacing" if dest_data[name][:md5] != data[:md5]
@@ -41,7 +41,7 @@ class Importer
   def initialize(dest, source = nil)
     setup_dest(dest)
     setup_source(source)
-    setup_removed(dest)
+    setup_disabled(dest)
   end
 
   def setup_dest(dest)
@@ -54,9 +54,9 @@ class Importer
     @source_data = @source.cached_data_and_images
   end
 
-  def setup_removed(dest)
-    @removed = YAML.safe_load(File.read('data/removed.yml'))
-    @removed += YAML.safe_load(File.read("data/removed.#{dest}.yml")) if File.exist?("data/removed.#{dest}.yml")
+  def setup_disabled(dest)
+    @disabled = YAML.safe_load(File.read('data/disabled.yml'))
+    @disabled += YAML.safe_load(File.read("data/disabled.#{dest}.yml")) if File.exist?("data/disabled.#{dest}.yml")
   end
 end
 
